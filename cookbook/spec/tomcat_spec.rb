@@ -8,4 +8,8 @@ describe 'cb-tomcat::default' do
     expect(chef_run).to include_recipe('java::default')
   end
 
+  it 'includes the cb-tomcat::tomcat recipe' do
+    expect(chef_run).to include_recipe('cb-tomcat::tomcat')
+  end
+
 end

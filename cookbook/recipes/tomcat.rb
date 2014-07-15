@@ -28,6 +28,24 @@ end
 node.normal['tomcat']['home_directory'] =
   "#{node['tomcat']['install_directory']}/tomcat"
 
+# Undeploy default webapps
+webapps_undeploy = [
+  "#{node['tomcat']['install_directory']}/tomcat/webapps/docs",
+  "#{node['tomcat']['install_directory']}/tomcat/webapps/examples"
+]
+if node['tomcat']['webapps']['manager']['deploy'] == false
+  webapps_undeploy = webapps_undeploy.concat([
+    "#{node['tomcat']['install_directory']}/tomcat/webapps/manager",
+    "#{node['tomcat']['install_directory']}/tomcat/webapps/host-manager"
+  ])
+end
+webapps_undeploy.each do |dir|
+  directory dir do
+    recursive true
+    action :delete
+  end
+end
+
 # Add the version file
 template "#{node['tomcat']['install_directory']}/tomcat/VERSION" do
   source 'VERSION.erb'

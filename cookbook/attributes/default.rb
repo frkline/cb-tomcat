@@ -9,6 +9,7 @@ node.default['tomcat']['default_java_opts'] = [
   '-Djava.awt.headless=true'
 ]
 node.default['tomcat']['additional_java_opts'] = []
+node.default['tomcat']['webapps']['manager']['deploy'] = false
 
 ## server.xml configuration
 # default['tomcat-all']['port'] = '8080'
