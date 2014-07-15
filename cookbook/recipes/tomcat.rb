@@ -28,6 +28,13 @@ end
 node.normal['tomcat']['home_directory'] =
   "#{node['tomcat']['install_directory']}/tomcat"
 
+# Add the version file
+template "#{node['tomcat']['install_directory']}/tomcat/VERSION" do
+  source 'VERSION.erb'
+  mode '755'
+  notifies :restart, 'service[tomcat]', :delayed
+end
+
 # Enable the tomcat service
 template '/etc/init.d/tomcat' do
   source 'init.conf.erb'
