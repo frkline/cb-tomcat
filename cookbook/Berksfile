@@ -9,4 +9,3 @@ cookbook 'cb-java',
          git: 'git@github.com:frkline/cb-java.git',
          branch: 'release-0.2.0',
          rel: 'cookbook'
-
