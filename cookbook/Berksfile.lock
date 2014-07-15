@@ -1,0 +1,30 @@
+DEPENDENCIES
+  cb-java
+    git: git@github.com:frkline/cb-java.git
+    revision: 082a9f01837608b7657592b9eced78e4848e5aef
+    branch: release-0.2.0
+    rel: cookbook
+  cb-tomcat
+    path: .
+    metadata: true
+  java_ext
+    git: git@github.com:frkline/java_ext.git
+    revision: 73f1ffb9205c25d42e946dc944d01a5b9191c65c
+    tag: 0.1.1
+
+GRAPH
+  cb-java (0.2.0)
+    java (= 1.22.0)
+    java_ext (= 0.1.1)
+  cb-tomcat (0.1.0)
+    cb-java (= 0.2.0)
+    tomcat (= 0.16.0)
+  chef-sugar (2.0.0)
+  java (1.22.0)
+  java_ext (0.1.1)
+    java (>= 0.0.0)
+  openssl (2.0.0)
+    chef-sugar (>= 0.0.0)
+  tomcat (0.16.0)
+    java (>= 0.0.0)
+    openssl (>= 0.0.0)

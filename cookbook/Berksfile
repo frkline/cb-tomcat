@@ -1,0 +1,12 @@
+source 'https://api.berkshelf.com'
+
+metadata
+
+cookbook 'java_ext',
+         git: 'git@github.com:frkline/java_ext.git',
+         tag: '0.1.1'
+cookbook 'cb-java',
+         git: 'git@github.com:frkline/cb-java.git',
+         branch: 'release-0.2.0',
+         rel: 'cookbook'
+
