@@ -67,6 +67,16 @@ template "#{node['tomcat']['install_directory']}/tomcat/bin/catalina.sh" do
   notifies :restart, 'service[tomcat]', :delayed
 end
 
+# Tomcat users configuration
+tomcat_users_file = 
+  "#{node['tomcat']['install_directory']}/tomcat/"\
+  'conf/tomcat-users.xml'
+template tomcat_users_file do
+  source 'tomcat-users.xml.erb'
+  mode '755'
+  notifies :restart, 'service[tomcat]', :delayed
+end
+
 # Start the tomcat service
 service 'tomcat' do
   supports :restart => true, :start => true, :stop => true

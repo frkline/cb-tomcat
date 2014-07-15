@@ -9,7 +9,13 @@ node.default['tomcat']['default_java_opts'] = [
   '-Djava.awt.headless=true'
 ]
 node.default['tomcat']['additional_java_opts'] = []
-node.default['tomcat']['webapps']['manager']['deploy'] = false
+
+# Manager
+node.default['tomcat']['webapps']['manager']['deploy'] = true
+node.default['tomcat']['webapps']['manager']['admin-script']['enabled'] = true
+node.default['tomcat']['webapps']['manager']['admin-script']['pw'] = 'script'
+node.default['tomcat']['webapps']['manager']['admin-gui']['enabled'] = true
+node.default['tomcat']['webapps']['manager']['admin-gui']['pw'] = 'gui'
 
 ## server.xml configuration
 # default['tomcat-all']['port'] = '8080'
