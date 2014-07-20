@@ -31,15 +31,6 @@ node.default['tomcat']['webapps']['manager']['admin-gui']['pw'] = 'gui'
 node.default['tomcat']['jmx']['rmi_registry_port'] = '10001'
 node.default['tomcat']['jmx']['rmi_server_port'] = '10002'
 node.default['tomcat']['jmx']['rmi_bind_address'] = 'localhost'
-node.default['tomcat']['jmx']['use_local_ports'] = false
-node.default['tomcat']['jmx']['ssl'] = false
-node.default['tomcat']['jmx']['authenticate'] = true
-node.default['tomcat']['jmx']['password_file'] =
-  '$CATALINA_HOME/conf/jmxremote.password'
-node.default['tomcat']['jmx']['access_file'] =
-  '$CATALINA_HOME/conf/jmxremote.access'
-node.default['tomcat']['jmx']['username'] = 'admin-jmx'
-node.default['tomcat']['jmx']['password'] = 'jmx'
 
 # JDWP
 node.default['tomcat']['jdwp']['enabled'] = true

@@ -143,9 +143,7 @@
     <Listener 
       className="org.apache.catalina.mbeans.JmxRemoteLifecycleListener"
       rmiRegistryPortPlatform="<%= node['tomcat']['jmx']['rmi_registry_port'] %>" 
-      rmiServerPortPlatform="<%= node['tomcat']['jmx']['rmi_server_port'] %>"
-      rmiBindAddress="<%= node['tomcat']['jmx']['rmi_bind_address'] %>" 
-      useLocalPorts="<%= node['tomcat']['jmx']['use_local_ports'] %>" />
+      rmiServerPortPlatform="<%= node['tomcat']['jmx']['rmi_server_port'] %>" />
 
     <!-- An Engine represents the entry point (within Catalina) that processes
          every request.  The Engine implementation for Tomcat stand alone

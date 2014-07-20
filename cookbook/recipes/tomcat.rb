@@ -74,14 +74,12 @@ end
 # Update CATALINA_OPTS
 node.normal['tomcat']['catalina_opts'] =
   node['tomcat']['catalina_opts'].concat([
-    '-Dcom.sun.management.jmxremote.ssl'\
-      "=#{node['tomcat']['jmx']['ssl']}",
-    '-Dcom.sun.management.jmxremote.authenticate'\
-      "=#{node['tomcat']['jmx']['authenticate']}",
-    '-Dcom.sun.management.jmxremote.password.file'\
-      "=#{node['tomcat']['jmx']['password_file']}",
-    '-Dcom.sun.management.jmxremote.access.file'\
-      "=#{node['tomcat']['jmx']['access_file']}"
+    '-Dcom.sun.management.jmxremote=',
+    '-Djava.rmi.server.hostname'\
+      "=#{node['tomcat']['jmx']['rmi_bind_address']}",
+    '-Dcom.sun.management.jmxremote.ssl=false',
+    '-Dcom.sun.management.jmxremote.ssl=false',
+    '-Dcom.sun.management.jmxremote.authenticate=false'
   ])
 
 # Enable JDWP
@@ -131,22 +129,6 @@ end
 # server.xml
 template "#{node['tomcat']['install_directory']}/tomcat/conf/server.xml" do
   source 'server.xml.erb'
-  mode '644'
-  notifies :restart, 'service[tomcat]', :delayed
-end
-
-# JMX
-password_file =
-  "#{node['tomcat']['install_directory']}/tomcat/conf/jmxremote.password"
-access_file =
-  "#{node['tomcat']['install_directory']}/tomcat/conf/jmxremote.access"
-template password_file do
-  source 'jmxremote.password.erb'
-  mode '644'
-  notifies :restart, 'service[tomcat]', :delayed
-end
-template access_file do
-  source 'jmxremote.access.erb'
   mode '644'
   notifies :restart, 'service[tomcat]', :delayed
 end
