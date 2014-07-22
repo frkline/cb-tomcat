@@ -1,0 +1,16 @@
+<configuration debug="false">
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${catalina.base}/logs/tomcat.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>tomcat.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>5</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d %p [%t] %c - %msg%n</pattern>
+    </encoder>
+  </appender> 
+  <root level="INFO">
+    <appender-ref ref="FILE" />
+  </root>
+</configuration>

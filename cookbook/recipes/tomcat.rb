@@ -74,14 +74,12 @@ end
 # Update CATALINA_OPTS
 node.normal['tomcat']['catalina_opts'] =
   node['tomcat']['catalina_opts'].concat([
-    '-Dcom.sun.management.jmxremote.ssl'\
-      "=#{node['tomcat']['jmx']['ssl']}",
-    '-Dcom.sun.management.jmxremote.authenticate'\
-      "=#{node['tomcat']['jmx']['authenticate']}",
-    '-Dcom.sun.management.jmxremote.password.file'\
-      "=#{node['tomcat']['jmx']['password_file']}",
-    '-Dcom.sun.management.jmxremote.access.file'\
-      "=#{node['tomcat']['jmx']['access_file']}"
+    '-Dcom.sun.management.jmxremote=',
+    '-Djava.rmi.server.hostname'\
+      "=#{node['tomcat']['jmx']['rmi_bind_address']}",
+    '-Dcom.sun.management.jmxremote.ssl=false',
+    '-Dcom.sun.management.jmxremote.ssl=false',
+    '-Dcom.sun.management.jmxremote.authenticate=false'
   ])
 
 # Enable JDWP
@@ -135,24 +133,118 @@ template "#{node['tomcat']['install_directory']}/tomcat/conf/server.xml" do
   notifies :restart, 'service[tomcat]', :delayed
 end
 
-# JMX
-password_file =
-  "#{node['tomcat']['install_directory']}/tomcat/conf/jmxremote.password"
-access_file =
-  "#{node['tomcat']['install_directory']}/tomcat/conf/jmxremote.access"
-template password_file do
-  source 'jmxremote.password.erb'
-  mode '644'
-  notifies :restart, 'service[tomcat]', :delayed
-end
-template access_file do
-  source 'jmxremote.access.erb'
-  mode '644'
-  notifies :restart, 'service[tomcat]', :delayed
-end
-
 # Enable the tomcat service
 service 'tomcat' do
   supports :restart => true, :start => true, :stop => true
   action [:enable]
+end
+
+# Install APR
+bash 'reload profile prior to apr installation' do
+  code 'source /etc/profile'
+end
+apr_download_url =
+  'http://archive.apache.org/dist/apr/'\
+  "apr-#{node['tomcat']['apr']['version']}.tar.gz"
+apr_util_download_url =
+  'http://archive.apache.org/dist/apr/'\
+  "apr-util-#{node['tomcat']['apr-util']['version']}.tar.gz"
+ark 'apr' do
+  url apr_download_url
+  checksum '94b1c9d9835cc9e902838b95d62ecc9a39b698f23e3e706812ec65a78ba41af7'
+  version node['tomcat']['apr']['version']
+  prefix_root node['tomcat']['apr']['install_directory']
+  prefix_home node['tomcat']['apr']['install_directory']
+  owner 'root'
+  action :configure
+end
+bash 'make apr' do
+  user 'root'
+  cwd node['tomcat']['apr']['install_directory']
+  code <<-EOH
+  cd apr-#{node['tomcat']['apr']['version']}
+  make && make install
+  EOH
+end
+ark 'apr-util' do
+  url apr_util_download_url
+  checksum '76db34cb508e346e3bf69347c29ed1500bf0b71bcc48d54271ad9d1c25703743'
+  version node['tomcat']['apr-util']['version']
+  prefix_root node['tomcat']['apr']['install_directory']
+  prefix_home node['tomcat']['apr']['install_directory']
+  autoconf_opts ['--with-apr=/usr/local/apr/']
+  owner 'root'
+  action :configure
+end
+ark 'tomcat-native' do
+  url "file://#{node['tomcat']['install_directory']}/"\
+      'tomcat/bin/tomcat-native.tar.gz'
+  version node['tomcat']['version']
+  prefix_root node['tomcat']['apr']['install_directory']
+  prefix_home node['tomcat']['apr']['install_directory']
+  strip_components 3
+  autoconf_opts ['--with-apr=/usr/local/apr/']
+  owner 'root'
+  action :configure
+end
+bash 'make apr utils and tomcat native' do
+  user 'root'
+  cwd node['tomcat']['apr']['install_directory']
+  code <<-EOH
+  cd apr-util-#{node['tomcat']['apr-util']['version']}
+  make && make install
+  cd #{node['tomcat']['apr']['install_directory']}
+  cd tomcat-native-#{node['tomcat']['version']}
+  make && make install
+  EOH
+end
+template '/etc/profile.d/apr.sh' do
+  source 'apr.sh.erb'
+  mode '755'
+  notifies :restart, 'service[tomcat]', :delayed
+end
+bash 'reload profile' do
+  code 'source /etc/profile'
+end
+
+# Enable logback logging via slf4j
+# Note that these jars are linked into the classpath by template catalina.sh.erb
+# http://hwellmann.blogspot.com/2012/11/logging-with-slf4j-and-logback-in.html
+cookbook_file 'logging.properties' do
+  path "#{node['tomcat']['install_directory']}/tomcat/conf/logging.properties"
+  action :create
+  notifies :restart, 'service[tomcat]', :delayed
+end
+ark 'slf4j-api' do
+  url 'http://www.slf4j.org/dist/slf4j-1.7.7.zip'
+  creates 'slf4j-api-1.7.7.jar'
+  path "#{node['tomcat']['install_directory']}/tomcat/bin"
+  action :cherry_pick
+end
+ark 'jul-to-slf4j' do
+  url 'http://www.slf4j.org/dist/slf4j-1.7.7.zip'
+  creates 'jul-to-slf4j-1.7.7.jar'
+  path "#{node['tomcat']['install_directory']}/tomcat/bin"
+  action :cherry_pick
+end
+ark 'logback-classic' do
+  url 'http://logback.qos.ch/dist/logback-1.1.2.zip'
+  creates 'logback-classic-1.1.2.jar'
+  path "#{node['tomcat']['install_directory']}/tomcat/bin"
+  action :cherry_pick
+end
+ark 'logback-core' do
+  url 'http://logback.qos.ch/dist/logback-1.1.2.zip'
+  creates 'logback-core-1.1.2.jar'
+  path "#{node['tomcat']['install_directory']}/tomcat/bin"
+  action :cherry_pick
+end
+directory "#{node['tomcat']['install_directory']}/tomcat/bin/log" do
+  mode '755'
+  action :create
+end
+template "#{node['tomcat']['install_directory']}/tomcat/bin/log/logback.xml" do
+  source 'logback.xml.erb'
+  mode '644'
+  notifies :restart, 'service[tomcat]', :delayed
 end
