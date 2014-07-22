@@ -27,12 +27,12 @@
   <!.. ..> that surrounds them.
 -->
   <% if node['tomcat']['webapps']['manager']['admin-script']['enabled'] -%>
-    <role rolename="manager-script"/>
-    <user username="admin-script" password="<%= node['tomcat']['webapps']['manager']['admin-script']['pw'] %>" roles="manager-script"/>
+    <role rolename="admin-script"/>
+    <user username="admin-script" password="<%= node['tomcat']['webapps']['manager']['admin-script']['pw'] %>" roles="admin-script"/>
   <% end -%>
     <% if node['tomcat']['webapps']['manager']['admin-gui']['enabled'] -%>
-    <role rolename="manager-gui"/>
-    <user username="admin-gui" password="<%= node['tomcat']['webapps']['manager']['admin-gui']['pw'] %>" roles="manager-gui"/>
+    <role rolename="admin-gui"/>
+    <user username="admin-gui" password="<%= node['tomcat']['webapps']['manager']['admin-gui']['pw'] %>" roles="admin-gui"/>
   <% end -%>
 <!--
   <role rolename="tomcat"/>

@@ -206,3 +206,45 @@ end
 bash 'reload profile' do
   code 'source /etc/profile'
 end
+
+# Enable logback logging via slf4j
+# Note that these jars are linked into the classpath by template catalina.sh.erb
+# http://hwellmann.blogspot.com/2012/11/logging-with-slf4j-and-logback-in.html
+cookbook_file 'logging.properties' do
+  path "#{node['tomcat']['install_directory']}/tomcat/conf/logging.properties"
+  action :create
+  notifies :restart, 'service[tomcat]', :delayed
+end
+ark 'slf4j-api' do
+  url 'http://www.slf4j.org/dist/slf4j-1.7.7.zip'
+  creates 'slf4j-api-1.7.7.jar'
+  path "#{node['tomcat']['install_directory']}/tomcat/bin"
+  action :cherry_pick
+end
+ark 'jul-to-slf4j' do
+  url 'http://www.slf4j.org/dist/slf4j-1.7.7.zip'
+  creates 'jul-to-slf4j-1.7.7.jar'
+  path "#{node['tomcat']['install_directory']}/tomcat/bin"
+  action :cherry_pick
+end
+ark 'logback-classic' do
+  url 'http://logback.qos.ch/dist/logback-1.1.2.zip'
+  creates 'logback-classic-1.1.2.jar'
+  path "#{node['tomcat']['install_directory']}/tomcat/bin"
+  action :cherry_pick
+end
+ark 'logback-core' do
+  url 'http://logback.qos.ch/dist/logback-1.1.2.zip'
+  creates 'logback-core-1.1.2.jar'
+  path "#{node['tomcat']['install_directory']}/tomcat/bin"
+  action :cherry_pick
+end
+directory "#{node['tomcat']['install_directory']}/tomcat/bin/log" do
+  mode '755'
+  action :create
+end
+template "#{node['tomcat']['install_directory']}/tomcat/bin/log/logback.xml" do
+  source 'logback.xml.erb'
+  mode '644'
+  notifies :restart, 'service[tomcat]', :delayed
+end
